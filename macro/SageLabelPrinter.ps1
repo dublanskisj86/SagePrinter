@@ -657,10 +657,16 @@ function Show-MainForm {
     })
 
     $copyMouseButton.Add_Click({
+        $copyMouseButton.Enabled = $false
+        Set-Status -Message 'Move the mouse over the Sage field to click. Capturing in 3 seconds...'
+        [System.Windows.Forms.Application]::DoEvents()
+        Start-Sleep -Seconds 3
+
         $position = [System.Windows.Forms.Cursor]::Position
         $step = "click|$($position.X)|$($position.Y)"
         [System.Windows.Forms.Clipboard]::SetText($step)
         Set-Status -Message "Copied to clipboard: $step"
+        $copyMouseButton.Enabled = $true
     })
 
     $copyTitleButton.Add_Click({

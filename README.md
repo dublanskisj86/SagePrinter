@@ -101,9 +101,11 @@ Available step commands:
 - `waitactive|Window title` - waits for a window to be active.
 - `tooltip|Message` - briefly shows a message.
 
-Helper hotkeys while the script is running:
+Helper controls while the script is running:
 
-- PowerShell version: use **Copy click** and **Copy title** buttons.
+- PowerShell version: use **Copy click** and **Copy title** buttons. **Copy
+  click** waits 3 seconds, so click the button and then move the mouse over the
+  Sage field you want the macro to click.
 - AutoHotkey version: `F9` copies the current mouse position as a `click|x|y`
   step, and `F10` copies the active window title.
 
