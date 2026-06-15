@@ -52,10 +52,12 @@ function New-DefaultConfig {
 [Settings]
 WindowTitle=Sage 200
 DelayMs=300
+UsePrinterCopies=false
 
 [Steps]
 ; Replace these example steps with the exact Sage actions needed to print one label.
 ; Use {label} wherever the pallet label value should be typed.
+; Use {copies} wherever the labels-per-pallet value should be typed.
 1=tooltip|Printing {label}
 2=send|^p
 3=sleep|500
@@ -412,16 +414,18 @@ function Invoke-MouseClick {
 function Expand-StepTokens {
     param(
         [string] $Value,
-        [string] $Label
+        [string] $Label,
+        [int] $Copies
     )
 
-    return $Value.Replace('{label}', $Label)
+    return $Value.Replace('{label}', $Label).Replace('{copies}', $Copies.ToString())
 }
 
 function Invoke-Step {
     param(
         [string] $Step,
         [string] $Label,
+        [int] $Copies,
         [int] $DefaultDelayMs
     )
 
@@ -431,7 +435,7 @@ function Invoke-Step {
         $argument = ''
     } else {
         $command = $Step.Substring(0, $separator).Trim().ToLowerInvariant()
-        $argument = Expand-StepTokens -Value $Step.Substring($separator + 1).Trim() -Label $Label
+        $argument = Expand-StepTokens -Value $Step.Substring($separator + 1).Trim() -Label $Label -Copies $Copies
     }
 
     switch ($command) {
@@ -476,6 +480,7 @@ function Invoke-Step {
 function Invoke-PrintOneLabel {
     param(
         [string] $Label,
+        [int] $Copies,
         [string[]] $Steps,
         [int] $DefaultDelayMs
     )
@@ -485,7 +490,7 @@ function Invoke-PrintOneLabel {
             return
         }
 
-        Invoke-Step -Step $step -Label $Label -DefaultDelayMs $DefaultDelayMs
+        Invoke-Step -Step $step -Label $Label -Copies $Copies -DefaultDelayMs $DefaultDelayMs
     }
 }
 
@@ -532,6 +537,7 @@ function Invoke-PrintRun {
 
     $windowTitle = Get-IniValue -Ini $ini -Section 'Settings' -Key 'WindowTitle' -Default 'Sage 200'
     $delayMs = ConvertTo-PositiveInteger -Value (Get-IniValue -Ini $ini -Section 'Settings' -Key 'DelayMs' -Default '300') -FieldName 'DelayMs'
+    $usePrinterCopies = ConvertTo-BooleanSetting -Value (Get-IniValue -Ini $ini -Section 'Settings' -Key 'UsePrinterCopies' -Default 'false') -Default $false
     $steps = Get-StepList -Ini $ini
 
     if ($steps.Count -eq 0) {
@@ -542,14 +548,24 @@ function Invoke-PrintRun {
     Invoke-ActivateWindow -Title $windowTitle
 
     foreach ($label in $labels) {
-        for ($copy = 0; $copy -lt $copies; $copy++) {
+        $repeatCount = $copies
+        if ($usePrinterCopies) {
+            $repeatCount = 1
+        }
+
+        for ($copy = 0; $copy -lt $repeatCount; $copy++) {
             if (Test-StopRequested) {
                 [void] [System.Windows.Forms.MessageBox]::Show('Stopped before printing the next label.', 'Stopped')
                 return
             }
 
-            Set-Status -Message "Printing $label ($($copy + 1) of $copies)"
-            Invoke-PrintOneLabel -Label $label -Steps $steps -DefaultDelayMs $delayMs
+            if ($usePrinterCopies) {
+                Set-Status -Message "Printing $label ($copies printer copies)"
+            } else {
+                Set-Status -Message "Printing $label ($($copy + 1) of $copies)"
+            }
+
+            Invoke-PrintOneLabel -Label $label -Copies $copies -Steps $steps -DefaultDelayMs $delayMs
             Start-Sleep -Milliseconds $delayMs
         }
     }

@@ -78,16 +78,18 @@ RunFromGui(mainGui) {
 
         windowTitle := IniRead(ConfigPath, "Settings", "WindowTitle", "Sage 200")
         delayMs := PositiveInteger(IniRead(ConfigPath, "Settings", "DelayMs", "300"), "DelayMs")
+        usePrinterCopies := BooleanSetting(IniRead(ConfigPath, "Settings", "UsePrinterCopies", "false"), false)
         ActivateSageWindow(windowTitle)
 
         for , label in labels {
-            Loop copies {
+            repeatCount := usePrinterCopies ? 1 : copies
+            Loop repeatCount {
                 if AbortRequested {
                     MsgBox("Stopped before printing the next label.", "Stopped", "Icon!")
                     return
                 }
 
-                PrintOneLabel(label, delayMs)
+                PrintOneLabel(label, copies, delayMs)
                 Sleep(delayMs)
             }
         }
@@ -157,7 +159,7 @@ BuildPreview(labels, copies) {
     return output
 }
 
-PrintOneLabel(label, defaultDelayMs) {
+PrintOneLabel(label, copies, defaultDelayMs) {
     global ConfigPath, AbortRequested
 
     Loop {
@@ -170,18 +172,18 @@ PrintOneLabel(label, defaultDelayMs) {
             return
         }
 
-        ExecuteStep(step, label, defaultDelayMs)
+        ExecuteStep(step, label, copies, defaultDelayMs)
     }
 }
 
-ExecuteStep(step, label, defaultDelayMs) {
+ExecuteStep(step, label, copies, defaultDelayMs) {
     firstSeparator := InStr(step, "|")
     if firstSeparator = 0 {
         command := StrLower(Trim(step))
         argument := ""
     } else {
         command := StrLower(Trim(SubStr(step, 1, firstSeparator - 1)))
-        argument := ReplaceTokens(Trim(SubStr(step, firstSeparator + 1)), label)
+        argument := ReplaceTokens(Trim(SubStr(step, firstSeparator + 1)), label, copies)
     }
 
     switch command {
@@ -218,8 +220,9 @@ ExecuteStep(step, label, defaultDelayMs) {
     Sleep(defaultDelayMs)
 }
 
-ReplaceTokens(value, label) {
-    return StrReplace(value, "{label}", label)
+ReplaceTokens(value, label, copies) {
+    value := StrReplace(value, "{label}", label)
+    return StrReplace(value, "{copies}", copies)
 }
 
 ActivateSageWindow(windowTitle) {
@@ -240,6 +243,18 @@ PositiveInteger(value, fieldName) {
     }
 
     return number
+}
+
+BooleanSetting(value, defaultValue) {
+    normalized := StrLower(Trim(value))
+    switch normalized {
+        case "1", "true", "yes", "on":
+            return true
+        case "0", "false", "no", "off":
+            return false
+        default:
+            return defaultValue
+    }
 }
 
 RequestAbort() {
@@ -269,10 +284,12 @@ CreateDefaultConfig(path) {
 [Settings]
 WindowTitle=Sage 200
 DelayMs=300
+UsePrinterCopies=false
 
 [Steps]
 ; Replace these example steps with the exact Sage actions needed to print one label.
 ; Use {label} wherever the pallet label value should be typed.
+; Use {copies} wherever the labels-per-pallet value should be typed.
 1=tooltip|Printing {label}
 2=send|^p
 3=sleep|500
