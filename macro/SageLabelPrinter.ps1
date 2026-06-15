@@ -152,6 +152,29 @@ function ConvertTo-PositiveInteger {
     return $number
 }
 
+function ConvertTo-BooleanSetting {
+    param(
+        [string] $Value,
+        [bool] $Default
+    )
+
+    if ([string]::IsNullOrWhiteSpace($Value)) {
+        return $Default
+    }
+
+    switch ($Value.Trim().ToLowerInvariant()) {
+        '1' { return $true }
+        'true' { return $true }
+        'yes' { return $true }
+        'on' { return $true }
+        '0' { return $false }
+        'false' { return $false }
+        'no' { return $false }
+        'off' { return $false }
+        default { return $Default }
+    }
+}
+
 function Get-Labels {
     param(
         [string] $Prefix,
@@ -480,16 +503,21 @@ function Invoke-PrintRun {
     $labels = Get-Labels -Prefix $Prefix -StartSuffix $StartSuffix -SuffixWidth $SuffixWidth -PalletCount $PalletCount -ExactLabels $ExactLabels
     $copies = ConvertTo-PositiveInteger -Value $LabelsPerPallet -FieldName 'Labels per pallet'
     $preview = Get-PreviewText -Labels $labels -Copies $copies
+    $ini = Read-IniFile -Path $Script:ConfigPath
+    $confirmBeforeRun = ConvertTo-BooleanSetting -Value (Get-IniValue -Ini $ini -Section 'Settings' -Key 'ConfirmBeforeRun' -Default 'true') -Default $true
+    $showCompleteMessage = ConvertTo-BooleanSetting -Value (Get-IniValue -Ini $ini -Section 'Settings' -Key 'ShowCompleteMessage' -Default 'true') -Default $true
 
-    $confirm = [System.Windows.Forms.MessageBox]::Show(
-        "The macro will process labels in this order:`r`n`r`n$preview",
-        'Confirm label order',
-        [System.Windows.Forms.MessageBoxButtons]::OKCancel,
-        [System.Windows.Forms.MessageBoxIcon]::Information
-    )
+    if ($confirmBeforeRun) {
+        $confirm = [System.Windows.Forms.MessageBox]::Show(
+            "The macro will process labels in this order:`r`n`r`n$preview",
+            'Confirm label order',
+            [System.Windows.Forms.MessageBoxButtons]::OKCancel,
+            [System.Windows.Forms.MessageBoxIcon]::Information
+        )
 
-    if ($confirm -ne [System.Windows.Forms.DialogResult]::OK) {
-        return
+        if ($confirm -ne [System.Windows.Forms.DialogResult]::OK) {
+            return
+        }
     }
 
     if ($DryRun) {
@@ -502,7 +530,6 @@ function Invoke-PrintRun {
         return
     }
 
-    $ini = Read-IniFile -Path $Script:ConfigPath
     $windowTitle = Get-IniValue -Ini $ini -Section 'Settings' -Key 'WindowTitle' -Default 'Sage 200'
     $delayMs = ConvertTo-PositiveInteger -Value (Get-IniValue -Ini $ini -Section 'Settings' -Key 'DelayMs' -Default '300') -FieldName 'DelayMs'
     $steps = Get-StepList -Ini $ini
@@ -527,12 +554,16 @@ function Invoke-PrintRun {
         }
     }
 
-    [void] [System.Windows.Forms.MessageBox]::Show(
-        "Finished printing $($labels.Count) pallet(s), $copies label(s) each.",
-        'Complete',
-        [System.Windows.Forms.MessageBoxButtons]::OK,
-        [System.Windows.Forms.MessageBoxIcon]::Information
-    )
+    if ($showCompleteMessage) {
+        [void] [System.Windows.Forms.MessageBox]::Show(
+            "Finished printing $($labels.Count) pallet(s), $copies label(s) each.",
+            'Complete',
+            [System.Windows.Forms.MessageBoxButtons]::OK,
+            [System.Windows.Forms.MessageBoxIcon]::Information
+        )
+    } else {
+        Set-Status -Message "Finished printing $($labels.Count) pallet(s), $copies label(s) each."
+    }
 }
 
 function Add-Label {

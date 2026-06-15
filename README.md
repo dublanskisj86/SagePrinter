@@ -122,19 +122,27 @@ If the Sage print popup is already open, target that popup instead:
 
 ```ini
 [Settings]
-WindowTitle=Print Glebe No Label Stock Label
-DelayMs=700
+WindowTitle=Sage 200
+DelayMs=800
+ConfirmBeforeRun=false
+ShowCompleteMessage=false
 
 [Steps]
-1=click|FROM_X|FROM_Y
-2=send|^a
-3=text|{label}
-4=send|{Tab}
-5=send|^a
-6=text|{label}
-7=sleep|300
-8=send|{Enter}
-9=sleep|3000
+1=send|^p
+2=waitwin|Print Glebe No Label Stock Label
+3=sleep|500
+4=activate|Print Glebe No Label Stock Label
+5=click|FROM_X|FROM_Y
+6=send|^a
+7=text|{label}
+8=click|TO_X|TO_Y
+9=send|^a
+10=text|{label}
+11=sleep|300
+12=click|OK_X|OK_Y
+13=sleep|3000
 ```
 
-Replace `FROM_X|FROM_Y` with the coordinate for the small **Pages from** box.
+Replace `FROM_X|FROM_Y`, `TO_X|TO_Y`, and `OK_X|OK_Y` with the coordinates
+captured from the small Sage print popup. This sequence opens the print popup,
+prints one page range, then repeats for the next page/copy.
