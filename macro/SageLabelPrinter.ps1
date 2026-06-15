@@ -351,22 +351,26 @@ function Send-LiteralText {
         return
     }
 
-    $previousClipboard = $null
-    $hadClipboard = $false
+    $previousClipboard = ''
+    $hadTextClipboard = $false
 
     try {
-        $previousClipboard = [System.Windows.Forms.Clipboard]::GetText()
-        $hadClipboard = $true
+        $hadTextClipboard = [System.Windows.Forms.Clipboard]::ContainsText()
+        if ($hadTextClipboard) {
+            $previousClipboard = [System.Windows.Forms.Clipboard]::GetText()
+        }
     } catch {
-        $hadClipboard = $false
+        $hadTextClipboard = $false
     }
 
     [System.Windows.Forms.Clipboard]::SetText($Text)
     [System.Windows.Forms.SendKeys]::SendWait('^v')
     Start-Sleep -Milliseconds 100
 
-    if ($hadClipboard) {
+    if ($hadTextClipboard -and $null -ne $previousClipboard) {
         [System.Windows.Forms.Clipboard]::SetText($previousClipboard)
+    } else {
+        [System.Windows.Forms.Clipboard]::Clear()
     }
 }
 
