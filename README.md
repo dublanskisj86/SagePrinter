@@ -33,34 +33,46 @@ required number of labels for that pallet before moving to the next one.
 
 ## Files
 
-- `macro/SageLabelPrinter.ahk` - AutoHotkey v2 macro with a simple input form.
+- `macro/RunSageLabelPrinter.bat` - no-install launcher for standard Windows PCs.
+- `macro/SageLabelPrinter.ps1` - no-install PowerShell macro with a simple input form.
+- `macro/SageLabelPrinter.ahk` - optional AutoHotkey v2 version.
 - `macro/print-steps.sample.ini` - editable example of the Sage print steps.
 
 ## Requirements
 
 1. Windows.
-2. [AutoHotkey v2](https://www.autohotkey.com/) installed.
-3. Sage open on the screen where one label can be printed manually.
-4. Toshiba printer/driver copy count set to `1`.
+2. Sage open on the screen where one label can be printed manually.
+3. Toshiba printer/driver copy count set to `1`.
 
 The macro should control the repeat count. The printer driver should not repeat
 the whole job.
 
-## Basic use
+AutoHotkey is optional. Use the PowerShell version if you do not have admin
+rights to install anything.
+
+## Basic use without admin rights
 
 1. Copy `macro/print-steps.sample.ini` to `macro/print-steps.ini`.
 2. Edit `macro/print-steps.ini` for the exact Sage screen.
-3. Double-click `macro/SageLabelPrinter.ahk`.
-4. Press `F8` to open the macro form.
-5. Enter:
+3. Double-click `macro/RunSageLabelPrinter.bat`.
+4. Enter:
    - Prefix/order number, for example `26166`
    - Start suffix, for example `1`
    - Number of pallets, for example `3`
    - Labels per pallet, for example `2`
-6. Run once with **Dry run** enabled to verify the order.
-7. Clear **Dry run** and run a one-pallet test before using it on a full batch.
+5. Run once with **Dry run** enabled to verify the order.
+6. Clear **Dry run** and run a one-pallet test before using it on a full batch.
 
 Press `Esc` at any time to ask the macro to stop after the current step.
+
+If Windows shows a security warning for the downloaded ZIP, right-click the ZIP,
+choose **Properties**, check **Unblock** if it appears, then unzip it again.
+
+## Optional AutoHotkey use
+
+If AutoHotkey v2 is already installed, you can double-click
+`macro/SageLabelPrinter.ahk` and press `F8` to open the same style of macro
+form.
 
 ## Teaching the macro how Sage prints one label
 
@@ -91,8 +103,9 @@ Available step commands:
 
 Helper hotkeys while the script is running:
 
-- `F9` copies the current mouse position as a `click|x|y` step.
-- `F10` copies the active window title, useful for the `WindowTitle` setting.
+- PowerShell version: use **Copy click** and **Copy title** buttons.
+- AutoHotkey version: `F9` copies the current mouse position as a `click|x|y`
+  step, and `F10` copies the active window title.
 
 Start by manually printing one label in Sage, then translate the clicks and keys
 you used into `print-steps.ini`. After that, the user only enters quantity and
