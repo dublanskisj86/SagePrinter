@@ -37,6 +37,8 @@ required number of labels for that pallet before moving to the next one.
 - `macro/SageLabelPrinter.ps1` - no-install PowerShell macro with a simple input form.
 - `macro/SageLabelPrinter.ahk` - optional AutoHotkey v2 version.
 - `macro/print-steps.sample.ini` - editable example of the Sage print steps.
+- `macro/print-steps.sage-open-print-popup.sample.ini` - sample for Sage page
+  range printing when the small Sage print popup is already open.
 
 ## Requirements
 
@@ -115,3 +117,24 @@ the macro repeats the process in the correct order.
 
 For Sage 200, keep the setting as `WindowTitle=Sage 200`. A shorter value such
 as `WindowTitle=Sage` can match the macro window instead of Sage.
+
+If the Sage print popup is already open, target that popup instead:
+
+```ini
+[Settings]
+WindowTitle=Print Glebe No Label Stock Label
+DelayMs=700
+
+[Steps]
+1=click|FROM_X|FROM_Y
+2=send|^a
+3=text|{label}
+4=send|{Tab}
+5=send|^a
+6=text|{label}
+7=sleep|300
+8=send|{Enter}
+9=sleep|3000
+```
+
+Replace `FROM_X|FROM_Y` with the coordinate for the small **Pages from** box.
