@@ -16,7 +16,7 @@ OpenMainGui() {
         CreateDefaultConfig(ConfigPath)
     }
 
-    mainGui := Gui(, "Sage Label Printer")
+    mainGui := Gui(, "Label Printer Macro")
     mainGui.SetFont("s10", "Segoe UI")
     mainGui.MarginX := 14
     mainGui.MarginY := 12
@@ -76,7 +76,7 @@ RunFromGui(mainGui) {
             return
         }
 
-        windowTitle := IniRead(ConfigPath, "Settings", "WindowTitle", "Sage")
+        windowTitle := IniRead(ConfigPath, "Settings", "WindowTitle", "Sage 200")
         delayMs := PositiveInteger(IniRead(ConfigPath, "Settings", "DelayMs", "300"), "DelayMs")
         ActivateSageWindow(windowTitle)
 
@@ -94,7 +94,7 @@ RunFromGui(mainGui) {
 
         MsgBox("Finished printing " labels.Length " pallet(s), " copies " label(s) each.", "Complete", "Iconi")
     } catch as err {
-        MsgBox("Macro stopped:`n`n" err.Message, "Sage Label Printer", "Iconx")
+        MsgBox("Macro stopped:`n`n" err.Message, "Label Printer Macro", "Iconx")
     }
 }
 
@@ -245,7 +245,7 @@ PositiveInteger(value, fieldName) {
 RequestAbort() {
     global AbortRequested
     AbortRequested := true
-    ToolTip("Sage Label Printer: stop requested")
+    ToolTip("Label Printer Macro: stop requested")
     SetTimer(() => ToolTip(), -1500)
 }
 
@@ -267,7 +267,7 @@ CreateDefaultConfig(path) {
     defaultConfig := "
     (
 [Settings]
-WindowTitle=Sage
+WindowTitle=Sage 200
 DelayMs=300
 
 [Steps]

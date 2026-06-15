@@ -50,7 +50,7 @@ function New-DefaultConfig {
 
     $content = @'
 [Settings]
-WindowTitle=Sage
+WindowTitle=Sage 200
 DelayMs=300
 
 [Steps]
@@ -503,7 +503,7 @@ function Invoke-PrintRun {
     }
 
     $ini = Read-IniFile -Path $Script:ConfigPath
-    $windowTitle = Get-IniValue -Ini $ini -Section 'Settings' -Key 'WindowTitle' -Default 'Sage'
+    $windowTitle = Get-IniValue -Ini $ini -Section 'Settings' -Key 'WindowTitle' -Default 'Sage 200'
     $delayMs = ConvertTo-PositiveInteger -Value (Get-IniValue -Ini $ini -Section 'Settings' -Key 'DelayMs' -Default '300') -FieldName 'DelayMs'
     $steps = Get-StepList -Ini $ini
 
@@ -575,7 +575,7 @@ function Show-MainForm {
     }
 
     $form = New-Object System.Windows.Forms.Form
-    $form.Text = 'Sage Label Printer'
+    $form.Text = 'Label Printer Macro'
     $form.StartPosition = 'CenterScreen'
     $form.Size = New-Object System.Drawing.Size(510, 365)
     $form.FormBorderStyle = 'FixedDialog'
@@ -649,7 +649,7 @@ function Show-MainForm {
         } catch {
             [void] [System.Windows.Forms.MessageBox]::Show(
                 "Macro stopped:`r`n`r`n$($_.Exception.Message)",
-                'Sage Label Printer',
+                'Label Printer Macro',
                 [System.Windows.Forms.MessageBoxButtons]::OK,
                 [System.Windows.Forms.MessageBoxIcon]::Error
             )

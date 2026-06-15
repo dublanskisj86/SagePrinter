@@ -112,3 +112,6 @@ Helper controls while the script is running:
 Start by manually printing one label in Sage, then translate the clicks and keys
 you used into `print-steps.ini`. After that, the user only enters quantity and
 the macro repeats the process in the correct order.
+
+For Sage 200, keep the setting as `WindowTitle=Sage 200`. A shorter value such
+as `WindowTitle=Sage` can match the macro window instead of Sage.
