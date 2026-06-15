@@ -135,16 +135,19 @@ UsePrinterCopies=true
 4=activate|Print Glebe No Label Stock Label
 5=click|COPIES_X|COPIES_Y
 6=send|^a
-7=text|{copies}
-8=click|FROM_X|FROM_Y
-9=send|^a
-10=text|{label}
-11=click|TO_X|TO_Y
-12=send|^a
-13=text|{label}
-14=sleep|300
-15=click|OK_X|OK_Y
-16=sleep|5000
+7=send|{Backspace}
+8=text|{copies}
+9=click|FROM_X|FROM_Y
+10=send|^a
+11=send|{Backspace}
+12=text|{label}
+13=click|TO_X|TO_Y
+14=send|^a
+15=send|{Backspace}
+16=text|{label}
+17=sleep|300
+18=click|OK_X|OK_Y
+19=sleep|6000
 ```
 
 Replace `COPIES_X|COPIES_Y`, `FROM_X|FROM_Y`, `TO_X|TO_Y`, and `OK_X|OK_Y`
