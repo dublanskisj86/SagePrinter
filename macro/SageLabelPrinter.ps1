@@ -624,74 +624,60 @@ function Show-MainForm {
     $form = New-Object System.Windows.Forms.Form
     $form.Text = 'Label Printer Macro'
     $form.StartPosition = 'CenterScreen'
-    $form.Size = New-Object System.Drawing.Size(510, 365)
+    $form.Size = New-Object System.Drawing.Size(430, 275)
     $form.FormBorderStyle = 'FixedDialog'
     $form.MaximizeBox = $false
 
-    [void] (Add-Label -Form $form -Text 'Prefix / order number' -X 16 -Y 18 -Width 150)
-    $prefixBox = Add-TextBox -Form $form -Text '26166' -X 16 -Y 40 -Width 150
+    [void] (Add-Label -Form $form -Text 'Pages to print, comma-separated' -X 16 -Y 18 -Width 240)
+    $pagesBox = Add-TextBox -Form $form -Text '1,2,3,4,5,6,7' -X 16 -Y 40 -Width 380
 
-    [void] (Add-Label -Form $form -Text 'Start suffix' -X 185 -Y 18 -Width 95)
-    $startBox = Add-TextBox -Form $form -Text '1' -X 185 -Y 40 -Width 75
-
-    [void] (Add-Label -Form $form -Text 'Suffix width' -X 280 -Y 18 -Width 95)
-    $widthBox = Add-TextBox -Form $form -Text '2' -X 280 -Y 40 -Width 75
-
-    [void] (Add-Label -Form $form -Text 'Number of pallets' -X 16 -Y 82 -Width 130)
-    $palletCountBox = Add-TextBox -Form $form -Text '3' -X 16 -Y 104 -Width 110
-
-    [void] (Add-Label -Form $form -Text 'Labels per pallet' -X 150 -Y 82 -Width 130)
-    $copiesBox = Add-TextBox -Form $form -Text '2' -X 150 -Y 104 -Width 110
-
-    [void] (Add-Label -Form $form -Text 'Optional exact labels, comma-separated' -X 16 -Y 146 -Width 260)
-    $exactLabelsBox = Add-TextBox -Form $form -Text '' -X 16 -Y 168 -Width 455
+    [void] (Add-Label -Form $form -Text 'Labels per pallet' -X 16 -Y 82 -Width 130)
+    $copiesBox = Add-TextBox -Form $form -Text '2' -X 16 -Y 104 -Width 110
 
     $dryRunBox = New-Object System.Windows.Forms.CheckBox
     $dryRunBox.Text = 'Dry run - show order without printing'
-    $dryRunBox.Location = New-Object System.Drawing.Point(16, 205)
+    $dryRunBox.Location = New-Object System.Drawing.Point(16, 140)
     $dryRunBox.Size = New-Object System.Drawing.Size(300, 24)
     $dryRunBox.Checked = $true
     [void] $form.Controls.Add($dryRunBox)
 
     $runButton = New-Object System.Windows.Forms.Button
     $runButton.Text = 'Run'
-    $runButton.Location = New-Object System.Drawing.Point(16, 242)
+    $runButton.Location = New-Object System.Drawing.Point(16, 177)
     $runButton.Size = New-Object System.Drawing.Size(90, 30)
     [void] $form.Controls.Add($runButton)
 
     $openStepsButton = New-Object System.Windows.Forms.Button
     $openStepsButton.Text = 'Open steps'
-    $openStepsButton.Location = New-Object System.Drawing.Point(116, 242)
+    $openStepsButton.Location = New-Object System.Drawing.Point(116, 177)
     $openStepsButton.Size = New-Object System.Drawing.Size(95, 30)
     [void] $form.Controls.Add($openStepsButton)
 
     $copyMouseButton = New-Object System.Windows.Forms.Button
     $copyMouseButton.Text = 'Copy click'
-    $copyMouseButton.Location = New-Object System.Drawing.Point(221, 242)
+    $copyMouseButton.Location = New-Object System.Drawing.Point(221, 177)
     $copyMouseButton.Size = New-Object System.Drawing.Size(95, 30)
     [void] $form.Controls.Add($copyMouseButton)
 
-    $copyTitleButton = New-Object System.Windows.Forms.Button
-    $copyTitleButton.Text = 'Copy title'
-    $copyTitleButton.Location = New-Object System.Drawing.Point(326, 242)
-    $copyTitleButton.Size = New-Object System.Drawing.Size(95, 30)
-    [void] $form.Controls.Add($copyTitleButton)
-
     $Script:StatusLabel = New-Object System.Windows.Forms.Label
     $Script:StatusLabel.Text = 'Ready. Press Esc during printing to stop after the current step.'
-    $Script:StatusLabel.Location = New-Object System.Drawing.Point(16, 292)
-    $Script:StatusLabel.Size = New-Object System.Drawing.Size(455, 40)
+    $Script:StatusLabel.Location = New-Object System.Drawing.Point(16, 220)
+    $Script:StatusLabel.Size = New-Object System.Drawing.Size(380, 30)
     [void] $form.Controls.Add($Script:StatusLabel)
 
     $runButton.Add_Click({
         try {
+            if ([string]::IsNullOrWhiteSpace($pagesBox.Text)) {
+                throw 'Pages to print is required. Example: 1,2,3,4,5,6,7'
+            }
+
             Invoke-PrintRun `
-                -Prefix $prefixBox.Text `
-                -StartSuffix $startBox.Text `
-                -SuffixWidth $widthBox.Text `
-                -PalletCount $palletCountBox.Text `
+                -Prefix 'Page' `
+                -StartSuffix '1' `
+                -SuffixWidth '1' `
+                -PalletCount '1' `
                 -LabelsPerPallet $copiesBox.Text `
-                -ExactLabels $exactLabelsBox.Text `
+                -ExactLabels $pagesBox.Text `
                 -DryRun $dryRunBox.Checked
         } catch {
             [void] [System.Windows.Forms.MessageBox]::Show(
@@ -718,17 +704,6 @@ function Show-MainForm {
         [System.Windows.Forms.Clipboard]::SetText($step)
         Set-Status -Message "Copied to clipboard: $step"
         $copyMouseButton.Enabled = $true
-    })
-
-    $copyTitleButton.Add_Click({
-        $title = Get-ForegroundWindowTitle
-        if ($title.Length -eq 0) {
-            Set-Status -Message 'Could not read active window title.'
-            return
-        }
-
-        [System.Windows.Forms.Clipboard]::SetText($title)
-        Set-Status -Message "Copied active window title: $title"
     })
 
     [void] $form.ShowDialog()

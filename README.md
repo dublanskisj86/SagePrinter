@@ -58,9 +58,7 @@ rights to install anything.
 2. Edit `macro/print-steps.ini` for the exact Sage screen.
 3. Double-click `macro/RunSageLabelPrinter.bat`.
 4. Enter:
-   - Prefix/order number, for example `26166`
-   - Start suffix, for example `1`
-   - Number of pallets, for example `3`
+   - Pages to print, for example `1,2,3,4,5,6,7`
    - Labels per pallet, for example `2`
 5. Run once with **Dry run** enabled to verify the order.
 6. Clear **Dry run** and run a one-pallet test before using it on a full batch.
@@ -73,7 +71,7 @@ choose **Properties**, check **Unblock** if it appears, then unzip it again.
 ## Optional AutoHotkey use
 
 If AutoHotkey v2 is already installed, you can double-click
-`macro/SageLabelPrinter.ahk` and press `F8` to open the same style of macro
+`macro/SageLabelPrinter.ahk` and press `F8` to open the optional full macro
 form.
 
 ## Teaching the macro how Sage prints one label
@@ -105,9 +103,9 @@ Available step commands:
 
 Helper controls while the script is running:
 
-- PowerShell version: use **Copy click** and **Copy title** buttons. **Copy
-  click** waits 3 seconds, so click the button and then move the mouse over the
-  Sage field you want the macro to click.
+- PowerShell version: use **Copy click** if you need to recapture a coordinate.
+  **Copy click** waits 3 seconds, so click the button and then move the mouse
+  over the Sage field you want the macro to click.
 - AutoHotkey version: `F9` copies the current mouse position as a `click|x|y`
   step, and `F10` copies the active window title.
 
